@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main</title>
+    <link rel="icon" type="image/x-icon" href="static/img/icon_IOT.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/main_mod.css">
+    <link rel="stylesheet" href="static/main_home.css">
+
+
+<!-- ส่วนสำคัญการ import เข้ามา -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/3.3.2/firebase.js"></script>
+    <script src="js/jquery.canvasjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/toorshia/justgage/raphael-2.1.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/toorshia/justgage/justgage.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/material.min.js"></script>
+    <script src="js/ripples.min.js"></script>
+
+</head>
+
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="navbar">
+                <div class="logo">
+                    <a href="index.html"><img src="static/img/icon_farm.png" width="125px"></a>
+                </div>
+                <nav>
+                    <ul id="MenuItem">
+                        <li><a href="index.html">Home</a></li>
+                        <li role="presentation"><a href="Graph.html" >Graph</a></li>
+                        <li role="presentation"><a href="Gauge.html" >Gauge</a></li>
+                        <li role="presentation"><a href="Team.html" >Team</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+<!--HEADER-->
+<!--INFO-->
+
+    <div class="info-container">
+        <div class="info-box">
+            <div id="temperature">
+                <div id="temp" class="content">00.0 &deg;C</div>
+                <div class="title">Temperature</div>
+            </div>
+        </div>
+        <div class="info-box">
+            <div id="humidity">
+
+                <div id="humid" class="content">00.0 %</div>
+                <div class="title">Humidity</div>
+            </div>
+        </div>
+    </div>
+    <div class="info-container">
+        <div class="info-box">
+            <div id="light">
+
+                <div id="lig" class="content">00.0</div>
+                <div class="title">Light</div>
+            </div>
+        </div>
+        <div class="info-box">
+            <div id="status">
+                <div id="stat" class="content">???</div>
+                <div class="title">Node 1</div>
+            </div>
+        </div>
+    </div>
+    <div class="info-container">
+        <div class="info-box">
+            <div id="controller">
+                <div id="con" class="content">
+                    <button id="controlButton">Open</button>
+                </div>
+                <div class="title">ให้อาหารปลา</div>
+            </div>
+        </div>
+    </div>
+    
+
+<!------footer------->
+
+    <div class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="footer-col-1">
+                    <h3>Download Our App</h3>
+                    <p>ติดตั้งบนแอป Android และ IOS</p>
+                    <div class="app-logo">
+                        <a href="https://www.android.com/"><img src="static/img/play-store.png"></a>
+                        <a href="https://www.apple.com/ios/ios-15/"><img src="static/img/app-store.png"></a>
+                    </div>
+                </div>
+                <div class="footer-col-2">
+                    <h3>" เว็บ Dashboard ตรวจสอบข้อมูล "</h3>
+                </div>
+                <div class="footer-col-3">
+                    <h3>Links</h3>
+                    <ul class="link">
+                        <li><a href="https://kmutnb.ac.th/">KMUTNB</a></li>
+                        <li><a href="https://www.facebook.com/FITM.KMUTNB/">FITM</a></li>
+                        <li><a href="https://www.facebook.com/INEKMUTNB/">INE</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col-4">
+                    <h3>Program to use</h3>
+                    <ul>
+                        <li><a href="https://www.arduino.cc/">Arduino</a></li>
+                        <li><a href="https://firebase.google.com/">Firebase</a></li>
+                        <li><a href="https://html.com/">HTML</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr>
+            <p class="copyright">Copyright 2023 - IOT Team</p>
+        </div>
+    </div>
+    <script>
+        // ตั้งค่า Firebase
+        var config = {
+            apiKey: "AIzaSyBOIS2LYXytMtMAAcDJaJTakyDiw7mqDRI",
+            authDomain: "iotdb-5bc97.firebaseapp.com",
+            databaseURL: "https://iotdb-5bc97-default-rtdb.firebaseio.com",
+            storageBucket: "iotdb-5bc97.appspot.com"
+        };
+
+        var firebaseApp = firebase.initializeApp(config);
+        var logDHT = firebaseApp.database().ref().child("logDHT");
+
+        var state = "Open";
+        $(document).ready(function() {
+            var controlButton = $("#controlButton");
+            
+            controlButton.click(function() {
+                state = (state === "Open") ? "Close" : "Open";
+                
+                controlButton.text(state);
+                
+                var valueToSend = (state === "Open") ? 0 : 1;
+                
+                // ส่งค่า valueToSend ไปยัง Firebase ใน path "TEST"
+                var testRef = firebaseApp.database().ref("TEST");
+                testRef.set(valueToSend);
+            });
+        });
+
+
+    logDHT.on("child_added", function (snapshot) {
+        var row = snapshot.val();
+        var timestamp = new Date(row.time);
+        var temperatureValue = {
+            x: timestamp,
+            y: row.temperature
+        };
+        var humidityValue = {
+            x: timestamp,
+            y: row.humidity
+        };
+        var lightValue = {
+            x: timestamp,
+            y: row.light
+        };
+
+        // อัปเดตข้อมูลกราฟ
+        chart.options.data[0].dataPoints.push(temperatureValue);
+        chart.options.data[1].dataPoints.push(humidityValue);
+        chart.options.data[2].dataPoints.push(lightValue);
+
+        // รีเรนเดอร์กราฟ
+        chart.render();
+    });
+
+
+
+        // ตัวอย่างการอัปเดตแกจจาก Firebase Realtime Database
+        logDHT.on("child_added", function (snapshot) {
+            var row = snapshot.val();
+            var lightValue = row.light;
+            var humidityValue = row.humidity;
+            var temperatureValue = row.temperature;
+
+            // อัปเดตแกจ
+            lightGauge.refresh(lightValue);
+            temperatureGauge.refresh(temperatureValue);
+            humidityGauge.refresh(humidityValue);
+        });
+
+        var logDHT = firebase.database().ref().child("logDHT");
+
+
+
+        var isOnline = true;
+
+function checkAndUpdateStatus() {
+    if (!isOnline) {
+        // ถ้าไม่มีการส่งข้อมูลมาเกิน 15 วินาที
+        $("#status").removeClass("success").addClass("danger");
+        $("#status > .content").text("OFFLINE");
+    }
+}
+
+logDHT.on("child_added", function(snapshot) {
+    var row = snapshot.val();
+
+    if (row) {
+        // มีข้อมูลที่ถูกส่งมา
+        isOnline = true;
+        $("#temperature > .content").html(row.temperature + " &deg;C");
+        $("#humidity > .content").text(row.humidity + " %");
+        $("#status").removeClass("danger").addClass("success");
+        $("#status > .content").text("ONLINE");
+        $("#light > .content").text(row.light + " lx");
+
+        // รีเรนเดอร์กราฟ
+        chart.options.data[0].dataPoints.push({ x: new Date(row.time), y: row.temperature });
+        chart.options.data[1].dataPoints.push({ x: new Date(row.time), y: row.humidity });
+        chart.options.data[2].dataPoints.push({ x: new Date(row.time), y: row.light });
+        chart.render();
+
+        // เมื่อมีข้อมูลเข้ามา รีเซ็ตเป็นออนไลน์
+        setTimeout(function() {
+            isOnline = false;
+            checkAndUpdateStatus();
+        }, 15000); // 15 วินาที
+    } else {
+        // ไม่มีข้อมูลถูกส่งมา (OFFLINE)
+        isOnline = false;
+        checkAndUpdateStatus();
+    }
+
+    setTimeoffline();
+});
+
+        // เริ่มต้นสคริปต์ Material Design Ripple Effect
+        $.material.init();
+    </script>
+</body>
+</html>

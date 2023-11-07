@@ -1,0 +1,48 @@
+.gauge .title {
+    font-family: 'Kanit', sans-serif; 
+    font-size: 20px; 
+    color: #000000; 
+}
+
+.gauge .value {
+    font-family: 'Kanit', sans-serif;
+    font-size: 24px; 
+    color: #3B5998; 
+}
+#lightGauge, #temperatureGauge, #humidityGauge {
+    background-color: #ffffff; /* เปลี่ยนสีพื้นหลังของ Gauge เป็นสีขาว */
+}
+
+#lightGauge, #temperatureGauge, #humidityGauge {
+    width: 300px; /* เปลี่ยนความกว้างของ Gauge เป็น 200px */
+    height: 300px; /* เปลี่ยนความสูงของ Gauge เป็น 200px */
+}
+
+#lightGauge, #temperatureGauge, #humidityGauge .gauge-ring {
+    stroke: #04364A; /* เปลี่ยนสีของตัวหมุนเป็นสีส้ม (สี HEX) */
+}
+
+#lightGauge, #temperatureGauge, #humidityGauge .gauge-text {
+    fill: #000; /* เปลี่ยนสีของข้อความค่าบน Gauge เป็นสีดำ (สี HEX) */
+}
+
+#lightGauge, #temperatureGauge, #humidityGauge .gauge-title {
+    fill: #000; /* เปลี่ยนสีของชื่อของ Gauge เป็นสีดำ (สี HEX) */
+}
+.gauge-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.gauge {
+    margin: auto ;
+}
+h1 {
+    font-family: 'Kanit', sans-serif; /* เลือกแบบอักษร */
+    font-size: 36px; /* ขนาดตัวอักษร */
+    color: #04364A; /* สีของข้อความ */
+    text-align: center; /* จัดกึ่งกลางในหน้าเว็บ */
+    text-transform: uppercase; /* แปลงเป็นตัวพิมพ์ใหญ่ */
+    margin-top: 20px; /* ระยะห่างด้านบน */
+}
