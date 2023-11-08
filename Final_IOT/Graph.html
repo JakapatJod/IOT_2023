@@ -110,12 +110,13 @@
 
         // เริ่มต้นสคริปต์ CanvasJS Chart
         var chart = new CanvasJS.Chart("chartContainer", {
+        theme: "dark1",
         title: {
-            text: "Temperature, Humidity, and Light History"
+            text: "Temperature Humidity and volume Graph"
         },
         axisX: {
-            valueFormatString: "DD MMM, HH:mm"
-        },
+            valueFormatString: "HH:mm"
+        },  
         axisY: {
             title: "Value"
         },
@@ -132,7 +133,7 @@
         }, {
             type: "line",
             showInLegend: true,
-            legendText: "Light", // ชื่อของเส้นข้อมูลแสง
+            legendText: "volume", // ชื่อของเส้นข้อมูลแสง
             dataPoints: []
         }]
     });
@@ -150,13 +151,13 @@
         };
         var lightValue = {
             x: timestamp,
-            y: row.light
+            y: row.volume
         };
 
         // อัปเดตข้อมูลกราฟ
         chart.options.data[0].dataPoints.push(temperatureValue);
         chart.options.data[1].dataPoints.push(humidityValue);
-        chart.options.data[2].dataPoints.push(lightValue);
+        chart.options.data[2].dataPoints.push(volumeValue);
 
         // รีเรนเดอร์กราฟ
         chart.render();
@@ -166,12 +167,12 @@
         // ตัวอย่างการอัปเดตแกจจาก Firebase Realtime Database
         logDHT.on("child_added", function (snapshot) {
             var row = snapshot.val();
-            var lightValue = row.light;
+            var volumeValue = row.volume;
             var humidityValue = row.humidity;
             var temperatureValue = row.temperature;
 
             // อัปเดตแกจ
-            lightGauge.refresh(lightValue);
+            volumeGauge.refresh(lightValue);
             temperatureGauge.refresh(temperatureValue);
             humidityGauge.refresh(humidityValue);
         });
@@ -200,12 +201,12 @@ logDHT.on("child_added", function(snapshot) {
         $("#humidity > .content").text(row.humidity + " %");
         $("#status").removeClass("danger").addClass("success");
         $("#status > .content").text("ONLINE");
-        $("#light > .content").text(row.light + " lx");
+        $("#volume > .content").text(row.volume + " lx");
 
         // รีเรนเดอร์กราฟ
         chart.options.data[0].dataPoints.push({ x: new Date(row.time), y: row.temperature });
         chart.options.data[1].dataPoints.push({ x: new Date(row.time), y: row.humidity });
-        chart.options.data[2].dataPoints.push({ x: new Date(row.time), y: row.light });
+        chart.options.data[2].dataPoints.push({ x: new Date(row.time), y: row.volume });
         chart.render();
 
         // เมื่อมีข้อมูลเข้ามา รีเซ็ตเป็นออนไลน์

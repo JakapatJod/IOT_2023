@@ -23,7 +23,7 @@
     <script src="js/ripples.min.js"></script>
     <style>
         h1 {
-            font-size: 32px; 
+            font-size: 75px; 
             font-weight: bold; 
             color: #333;
             margin: auto; 
@@ -61,29 +61,29 @@
         <div class="info-box">
             <div id="temperature">
                 <div id="temp" class="content">00.0 &deg;C</div>
-                <div class="title">Temperature</div>
+                <div class="title">อุณหภูมิของน้ำ</div>
             </div>
         </div>
         <div class="info-box">
             <div id="humidity">
 
                 <div id="humid" class="content">00.0 %</div>
-                <div class="title">Humidity</div>
+                <div class="title">ความชื้นของกล่องเก็บบอร์ด</div>
             </div>
         </div>
     </div>
     <div class="info-container">
         <div class="info-box">
-            <div id="light">
+            <div id="volume">
 
-                <div id="lig" class="content">00.0</div>
-                <div class="title">Light</div>
+                <div id="volu" class="content">00.0</div>
+                <div class="title">ค่าแรงดันน้ำ</div>
             </div>
         </div>
         <div class="info-box">
-            <div id="status">
-                <div id="stat" class="content">???</div>
-                <div class="title">Node 1</div>
+            <div id="foodStatus">
+                <div id="foodStat" class="content">???</div>
+                <div class="title">สถานะอาหาร</div>
             </div>
         </div>
     </div>
@@ -91,9 +91,15 @@
         <div class="info-box">
             <div id="controller">
                 <div id="con" class="content">
-                    <button id="controlButton">Open</button>
+                    <button id="controlButton">เปิด</button>
                 </div>
                 <div class="title">ให้อาหารปลา</div>
+            </div>
+        </div>
+        <div class="info-box">
+            <div id="status">
+                <div id="stat" class="content">???</div>
+                <div class="title">Node 1</div>
             </div>
         </div>
     </div>
@@ -148,19 +154,19 @@
         var firebaseApp = firebase.initializeApp(config);
         var logDHT = firebaseApp.database().ref().child("logDHT");
 
-        var state = "Open";
+        var state = "เปิด";
         $(document).ready(function() {
             var controlButton = $("#controlButton");
             
             controlButton.click(function() {
-                state = (state === "Open") ? "Close" : "Open";
+                state = (state === "เปิด") ? "ปิด" : "เปิด";
                 
                 controlButton.text(state);
                 
-                var valueToSend = (state === "Open") ? 0 : 1;
+                var valueToSend = (state === "เปิด") ? 0 : 1;
                 
                 // ส่งค่า valueToSend ไปยัง Firebase ใน path "TEST"
-                var testRef = firebaseApp.database().ref("TEST");
+                var testRef = firebaseApp.database().ref("TEST/SAVO");
                 testRef.set(valueToSend);
             });
         });
@@ -177,15 +183,15 @@
             x: timestamp,
             y: row.humidity
         };
-        var lightValue = {
+        var volumeValue = {
             x: timestamp,
-            y: row.light
+            y: row.volume
         };
 
         // อัปเดตข้อมูลกราฟ
         chart.options.data[0].dataPoints.push(temperatureValue);
         chart.options.data[1].dataPoints.push(humidityValue);
-        chart.options.data[2].dataPoints.push(lightValue);
+        chart.options.data[2].dataPoints.push(volumeValue);
 
         // รีเรนเดอร์กราฟ
         chart.render();
@@ -196,14 +202,17 @@
         // ตัวอย่างการอัปเดตแกจจาก Firebase Realtime Database
         logDHT.on("child_added", function (snapshot) {
             var row = snapshot.val();
-            var lightValue = row.light;
+            var volumeValue = row.volume;
             var humidityValue = row.humidity;
             var temperatureValue = row.temperature;
+            var foodStatusValue = row.foodStatus;
+
 
             // อัปเดตแกจ
-            lightGauge.refresh(lightValue);
+            volumeGauge.refresh(volumeValue);
             temperatureGauge.refresh(temperatureValue);
             humidityGauge.refresh(humidityValue);
+
         });
 
         var logDHT = firebase.database().ref().child("logDHT");
@@ -230,12 +239,14 @@ logDHT.on("child_added", function(snapshot) {
         $("#humidity > .content").text(row.humidity + " %");
         $("#status").removeClass("danger").addClass("success");
         $("#status > .content").text("ONLINE");
-        $("#light > .content").text(row.light + " lx");
+        $("#volume > .content").text(row.volume + " L/m");
+        $("#foodStatus > .content").text(row.foodStatus );
+
 
         // รีเรนเดอร์กราฟ
         chart.options.data[0].dataPoints.push({ x: new Date(row.time), y: row.temperature });
         chart.options.data[1].dataPoints.push({ x: new Date(row.time), y: row.humidity });
-        chart.options.data[2].dataPoints.push({ x: new Date(row.time), y: row.light });
+        chart.options.data[2].dataPoints.push({ x: new Date(row.time), y: row.volume });
         chart.render();
 
         // เมื่อมีข้อมูลเข้ามา รีเซ็ตเป็นออนไลน์
