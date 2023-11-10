@@ -25,6 +25,22 @@
             margin: 0 auto; /* จัดตำแหน่งให้อยู่ตรงกลางของหน้าจอ */
             height: 560px; width: 100%;
         }
+        #barChart2Container {
+            display: block; 
+            margin: 0 auto; 
+            height: 560px; width: 100%;
+        }
+        h1 {
+            font-size: 75px; 
+            font-weight: bold; 
+            color: #000000;
+            margin: auto; 
+            text-align: center; 
+            text-transform: uppercase; 
+            margin-bottom: 20px; 
+            font-family: 'Kanit', sans-serif;
+
+        }
     </style>
     
 </head>
@@ -37,7 +53,7 @@
         <div class="container">
             <div class="navbar">
                 <div class="logo">
-                    <a href="index.html"><img src="static/img/icon_farm.png" width="125px"></a>
+                    <a href="homepage.html"><img src="static/img/icon_farm.png" width="125px"></a>
                 </div>
                 <nav>
                     <ul id="MenuItem">
@@ -53,9 +69,12 @@
 <!--HEADER-->
 <!--INFO-->
 
-
+            <h1>การแสดงค่าข้อมูลในรูปแบบต่าง ๆ </h1>
             <div role="tabpanel" class="tab-pane" id="history">
                 <div id="chartContainer" ></div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="history"></div>
+                <div id="barChart2Container"></div>
             </div>
 
     
@@ -112,31 +131,88 @@
         var chart = new CanvasJS.Chart("chartContainer", {
         theme: "dark1",
         title: {
-            text: "Temperature Humidity and volume Graph"
+            text: "Multi Series Line Chart อุณหภูมิของน้ำ ความชื้น และ แรงดันน้ำ",
+            labelFontFamily: "Kanit"
         },
         axisX: {
-            valueFormatString: "HH:mm"
+            valueFormatString: "HH:mm",
+            labelFontFamily: "Kanit"
         },  
         axisY: {
-            title: "Value"
+            title: "Value",
+            labelFontFamily: "Kanit"
         },
         data: [{
             type: "line",
             showInLegend: true,
-            legendText: "Temperature", // ชื่อของเส้นข้อมูลอุณหภูมิ
+            legendText: "อุณหภูมิ",
+            labelFontFamily: "Kanit", // ชื่อของเส้นข้อมูลอุณหภูมิ
             dataPoints: []
         }, {
             type: "line",
             showInLegend: true,
-            legendText: "Humidity", // ชื่อของเส้นข้อมูลความชื้น
+            legendText: "ความชื้น",
+            labelFontFamily: "Kanit", // ชื่อของเส้นข้อมูลความชื้น
             dataPoints: []
         }, {
             type: "line",
             showInLegend: true,
-            legendText: "volume", // ชื่อของเส้นข้อมูลแสง
+            legendText: "แรงดันน้ำ",
+            labelFontFamily: "Kanit", // ชื่อของเส้นข้อมูลแสง
             dataPoints: []
         }]
     });
+    
+    var barChart2 = new CanvasJS.Chart("barChart2Container", {
+    animationEnabled: true,
+    theme: "dark1",
+    title: {
+        text: "Stacked Area Chart อุณหภูมิของน้ำ ความชื้น และ แรงดันน้ำ",
+        fontColor: "black",
+        labelFontFamily: "Kanit"
+    },
+    axisX: {
+        valueFormatString: "HH:mm",
+        fontColor: "black",
+        labelFontFamily: "Kanit"
+    },
+    axisY: {
+        title: "Value",
+        fontColor: "black",
+        labelFontFamily: "Kanit"
+    },
+    toolTip: {
+        shared: true,
+    },
+    data: [
+        {
+            type: "stackedArea",
+            name: "อุณหภูมิ",
+            showInLegend: true,
+            color: "red", // You can set your preferred color here
+            dataPoints: []
+        },
+        {
+            type: "stackedArea",
+            name: "ความชื้น",
+            showInLegend: true,
+            color: "blue", // You can set your preferred color here
+            dataPoints: []
+        },
+        {
+            type: "stackedArea",
+            name: "แรงดันน้ำ",
+            showInLegend: true,
+            color: "green", // You can set your preferred color here
+            dataPoints: []
+        }
+    ]
+});
+
+
+
+
+
 
     logDHT.on("child_added", function (snapshot) {
         var row = snapshot.val();
@@ -149,7 +225,7 @@
             x: timestamp,
             y: row.humidity
         };
-        var lightValue = {
+        var volumeValue = {
             x: timestamp,
             y: row.volume
         };
@@ -159,8 +235,13 @@
         chart.options.data[1].dataPoints.push(humidityValue);
         chart.options.data[2].dataPoints.push(volumeValue);
 
+        barChart2.options.data[0].dataPoints.push(temperatureValue);
+        barChart2.options.data[1].dataPoints.push(humidityValue);
+        barChart2.options.data[2].dataPoints.push(volumeValue);
         // รีเรนเดอร์กราฟ
         chart.render();
+        barChart2.render();
+
     });
 
 

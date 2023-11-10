@@ -7,7 +7,7 @@
 #include <ESP8266WiFi.h>
 #include <FirebaseArduino.h>
 #include <time.h> 
-
+// #include <TimeLib.h>
 int timezone = 7;
 
 char ntp_server1[20] = "ntp.ku.ac.th";
@@ -22,7 +22,7 @@ int inPin = D2;
 #define FIREBASE_HOST "iotdb-5bc97-default-rtdb.firebaseio.com"
 #define FIREBASE_AUTH "rJHfPNUfv6vyX2YZdIcnXV1Qb3yUfXWvEnzw0qno"
 
-#define LINE_TOKEN "5dRhLyINoGodieLlkxHKmFfvGGxCn4vcgvv0wIgKCQr"
+#define LINE_TOKEN "fw7T6yctjysHilpe5ETnMfzqIXCia0bWbuIVNqQEuKg"
 
 #define WIFI_SSID "Bunnapon"
 #define WIFI_PASSWORD "Bunnapon123"
@@ -37,9 +37,9 @@ Servo myservo; //ประกาศตัวแปรแทน Servo
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 DHT dht(DHTPIN, DHTTYPE);
-
+ 
 float volume;
-
+bool servoTurned = false;
 void setup(void) {
   Serial.begin(9600);
 
@@ -75,12 +75,15 @@ void setup(void) {
   Serial.println("Dallas Temperature IC Control Library");
   sensors.begin();
   dht.begin();
+  myservo.write(30);
+  
 }
 
+
 void loop(void) {
+  
   long duration, cm;
   float h = dht.readHumidity();
-  
   Serial.println("Requesting temperatures...");
   sensors.requestTemperatures();
   Serial.print("Temperature is: ");
@@ -92,7 +95,7 @@ void loop(void) {
     pulse = 0;
     lastTime = millis();
   }
-
+  
   pinMode(pingPin, OUTPUT);
   digitalWrite(pingPin, LOW);
   delayMicroseconds(2);
@@ -105,20 +108,26 @@ void loop(void) {
   Serial.print(cm);
   Serial.print("cm");
   Serial.println();
-
   Serial.print(volume);
   Serial.println(" L/m");
   Serial.print(F("Humidity: "));
-  Serial.print(h);
+  Serial.println(h);
 
   String foodStatus;
-  if (cm < 50) {
+  if (cm < 6) {
     foodStatus = "อาหารเหลือเพียงพอ";
   } else {
-    foodStatus = "อาหารเหลือน้อย !!";
-    LINE.notify("อาหารเหลือน้อย !!");
+    foodStatus = "อาหารเหลือน้อย !!"; 
   }
 
+  String pumbStatus;
+  if (volume == 0) {
+    pumbStatus = "ปั้มไม่ทำงาน";
+  } else {
+    pumbStatus = "ปั้มทำงานอยู่"; 
+  }
+  
+  
   if (Firebase.available()) {
      FirebaseObject event = Firebase.readEvent();
      String eventType = event.getString("type");
@@ -135,23 +144,36 @@ void loop(void) {
         
          if(data == 0){
           Serial.println("ปิดไฟ : 0 ");
-          myservo.write(0);
+          myservo.write(80);
+          servoTurned = true;
          }else{
              Serial.println("เปิดไฟ : 1 ");
-             myservo.write(180);
+             myservo.write(30);
+             servoTurned = true;
          }
-        
-
      }
   }
+
+  // if (hour() >= 15 && !servoTurned) {
+  //   Serial.println("Turning servo to 80 degrees...");
+  //   myservo.write(30);
+  //   servoTurned = true;  // เพื่อป้องกันการหัน servo ซ้ำ
+  // }else{
+  //   myservo.write(80);
+  //   }
+
+  float vol_wat = volume;
+
+  
 
   StaticJsonBuffer<200> jsonBuffer;
   JsonObject& root = jsonBuffer.createObject();
   root["temperature"] = tem_water;
   root["humidity"] = h;
-  root["volume"] = volume;
+  root["volume"] = vol_wat;
   root["food"] = cm;
   root["foodStatus"] = foodStatus;
+  root["pumbStatus"] = pumbStatus;
   root["time"] = NowString();
 
   String name = Firebase.push("logDHT", root);
@@ -164,8 +186,6 @@ void loop(void) {
   Serial.print("pushed: /logDHT/");
   Serial.println(name);
 
-  
-  
   delay(1500);
 }
 

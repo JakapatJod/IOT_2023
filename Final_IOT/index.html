@@ -25,7 +25,7 @@
         h1 {
             font-size: 75px; 
             font-weight: bold; 
-            color: #333;
+            color: #000000;
             margin: auto; 
             text-align: center; 
             text-transform: uppercase; 
@@ -41,7 +41,7 @@
         <div class="container">
             <div class="navbar">
                 <div class="logo">
-                    <a href="index.html"><img src="static/img/icon_farm.png" width="125px"></a>
+                    <a href="homepage.html"><img src="static/img/icon_farm.png" width="125px"></a>
                 </div>
                 <nav>
                     <ul id="MenuItem">
@@ -97,9 +97,9 @@
             </div>
         </div>
         <div class="info-box">
-            <div id="status">
-                <div id="stat" class="content">???</div>
-                <div class="title">Node 1</div>
+            <div id="pumbStatus">
+                <div id="pumStat" class="content">???</div>
+                <div class="title">สถานะปั้มน้ำ</div>
             </div>
         </div>
     </div>
@@ -206,6 +206,7 @@
             var humidityValue = row.humidity;
             var temperatureValue = row.temperature;
             var foodStatusValue = row.foodStatus;
+            var pumbStatusValue = row.pumbStatus;
 
 
             // อัปเดตแกจ
@@ -241,6 +242,7 @@ logDHT.on("child_added", function(snapshot) {
         $("#status > .content").text("ONLINE");
         $("#volume > .content").text(row.volume + " L/m");
         $("#foodStatus > .content").text(row.foodStatus );
+        $("#pumbStatus > .content").text(row.pumbStatus );
 
 
         // รีเรนเดอร์กราฟ
